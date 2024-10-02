@@ -1,6 +1,8 @@
 # Cluster Logging and OpenTelemetry
 
-This is the protocol and semantic conventions documentation for Red Hat OpenShift Logging.
+This is the protocol and semantic conventions documentation for Red Hat OpenShift Logging's OTEL support 
+starting with Logging v6.0 which is considered **Tech-Preview**.  This document should be
+considered as a work in progress and is subject to change until OTEL support graduates to **General Acceptance**. 
 
 ## Forwarding and Ingestion Protocol
 
@@ -22,48 +24,61 @@ The log collector provided by this solution collects the following log streams:
 These streams are forwarded using the sementatic conventions defined by [OpenTelemetry semantic attributes](https://github.com/open-telemetry/semantic-conventions/tree/main/docs). The semantic conventions in OpenTelemetry define a *Resource* as an immutable representation of the entity producing telemetry as *Attributes*. For example, a process producing telemetry that is running in a container has a container_name, a cluster_id, a pod_name, a namespace, and possibly a deployment or app_name. All of these *Attributes* are included in the *Resource* object.  This grouping and reducing of common attributes is a powerful tool when sending logs as telemetry data.
 
 
-The following sections define the attributes that are forwarded.
+The following sections define the attributes that are generally forwarded.
 
 
-### Common Attributes
+### Common Fields & Attributes
 
-All log streams include a minimal set of attributes.
+All log streams include the following fields:
+
+```
+body
+observedTimeUnixNano
+severityNumber
+severityText
+timeUnixNano
+```
+
+All log streams include the minimal set of the following attributes:
 
 Resource Attributes:
 ```
-cluster.id
-node.name
+host.name
+openshift.cluster.uid
 openshift.log.source
 openshift.log.type
 ```
 
-Log Attributes:
-```
-body
-timeUnixNano
-severityNumber
-observedTimeUnixNano
-```
+
 
 ### Kubernetes Container Logs
 
+Some of the following attributes (i.e. `k8s.(cronjob|daemonset|deployment|job|replicaset|statefulset).name`) are conditionally forwarded based upon the log stream.  For example, logs from a pod that was created as a result of defining a cronjob may only include the `k8s.cronjob.name` attribute.
+
 Resource Attributes:
 ```
-k8s.cluster.uid
 k8s.container.name
-k8s.namespace.name
+k8s.cronjob.name 
+k8s.daemonset.name 
+k8s.deployment.name 
+k8s.job.name
 k8s.pod.name
+k8s.namespace.name
+k8s.replicaset.name 
+k8s.statefulset.name 
 ```
 
 Log Attributes:
 ```
 k8s.container.id
 k8s.node.name
+k8s.pod.labels.*
 k8s.pod.uid
+openshift.labels.*  #
 ```
 
 The following attributes, along with their OTEL equivalents, are added to support minimal backwards compatibility with the [ViaQ](https://github.com/openshift/cluster-logging-operator/blob/release-6.0/docs/reference/datamodels/viaq/v1.adoc) data model. These attributes should be considered deprecated
-and will be removed in a future update.
+and will be removed one release after **General Acceptance** of Red Hat OpenShift Logging.
 
 ```
 kubernetes.container_name -> k8s.container.name
@@ -75,17 +90,40 @@ log_type                  -> openshift.log.type
 
 ### Kubernetes and OpenShift API, OVN Logs
 
+Resource Attributes:
+```
+```
+
 Log Attributes:
 ```
 http.response.status.code
 http.request.method
+http.request.method_original
+openshift.labels.*
+user.name
+user_agent.original
+url.domain
 url.full
+url.path
+url.query
 ```
 
 ### Cluster Node Journal Logs
 
-Log Attributes:
+Resource Attributes:
 ```
+```
+
+Log Attributes:    #NEED TO REVIEW SYSTEM VALUES SINCE THEY DON'T LOOK TO BE FORWARDED. PROCESS SEEMS REASONABLE TO ASSOCIATE WITH A NODE
+```
+host.id
+openshift.labels.*
+process.command_line
+process.executable.path
+process.gid
+process.pid
+process.user.id
+service.name
 system.cgroup
 system.cmdline
 syslog.facility
@@ -98,9 +136,14 @@ system.unit
 
 ### Cluster Node Auditd Logs
 
-
-Log Attributes:
+Resource Attributes:
 ```
+k8s.node.name
+```
+
+Log Attributes:   #MAPPED THE PARSED MESSAGE STRING??
+```
+openshift.labels.*
 ```
 
 ## References
