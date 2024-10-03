@@ -29,109 +29,113 @@ The following sections define the attributes that are generally forwarded.
 
 ### Common Fields & Attributes
 
-All log streams include the following fields:
+All log streams include the following [logData](https://opentelemetry.io/docs/specs/otel/logs/data-model/#log-and-event-record-definition) fields:
 
 ```
 body
 observedTimeUnixNano
-severityNumber
-severityText
+severityNumber           #N/A for Kubernetes, OpenShift, OVN audit logs
+severityText             #N/A for Kubernetes, OpenShift, OVN audit logs
 timeUnixNano
 ```
 
-All log streams include the minimal set of the following attributes:
 
-Resource Attributes:
+All log streams include the minimal set of the following [resource](https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/resource/sdk.md) attributes:
+
 ```
-host.name
 openshift.cluster.uid
 openshift.log.source
 openshift.log.type
+```
+
+All log streams include the following log attributes:
+
+```
+openshift.labels.*  # spec identifies these as resource attributes...
 ```
 
 
 
 ### Kubernetes Container Logs
 
-Some of the following attributes (i.e. `k8s.(cronjob|daemonset|deployment|job|replicaset|statefulset).name`) are conditionally forwarded based upon the log stream.  For example, logs from a pod that was created as a result of defining a cronjob may only include the `k8s.cronjob.name` attribute.
+Some of the following attributes (i.e. *k8s.(cronjob|daemonset|deployment|job|replicaset|statefulset).name*) are 
+[conditionally](https://opentelemetry.io/docs/specs/semconv/general/attribute-requirement-level/#conditionally-required) 
+forwarded based upon the log stream.  For example, logs from a pod that was created as a result of defining a cronjob may only include the *k8s.cronjob.name* attribute.
 
 Resource Attributes:
 ```
+k8s.node.name
+k8s.node.uid
+
+k8s.namespace.name
 k8s.container.name
+k8s.container.id
+k8s.pod.name
+k8s.pod.uid
+
 k8s.cronjob.name 
 k8s.daemonset.name 
 k8s.deployment.name 
 k8s.job.name
-k8s.pod.name
-k8s.namespace.name
 k8s.replicaset.name 
 k8s.statefulset.name 
 ```
 
 Log Attributes:
 ```
-k8s.container.id
-k8s.node.name
-k8s.pod.labels.*
-k8s.pod.uid
-openshift.labels.*  #
+k8s.pod.labels.*    # spec identifies these as resource attributes...
+log.iostream
 ```
 
 The following attributes, along with their OTEL equivalents, are added to support minimal backwards compatibility with the [ViaQ](https://github.com/openshift/cluster-logging-operator/blob/release-6.0/docs/reference/datamodels/viaq/v1.adoc) data model. These attributes should be considered deprecated
 and will be removed one release after **General Acceptance** of Red Hat OpenShift Logging.
 
-```
-kubernetes.container_name -> k8s.container.name
-kubernetes.namespace_name -> k8s.namespace.name
-kubernetes.pod_name       -> k8s.pod.name
-log_source                -> openshift.log.source
-log_type                  -> openshift.log.type
-```
+
+| ViaQ | OTEL |
+|------|---|
+|`kubernetes.container_name` |`k8s.container.name`|
+|`kubernetes.namespace_name` | `k8s.namespace.name`|
+|`kubernetes.pod_name`       | `k8s.pod.name`|
+|`log_source`                | `openshift.log.source`|
+|`log_type`                  | `openshift.log.type`|
+
 
 ### Kubernetes and OpenShift API, OVN Logs
 
 Resource Attributes:
 ```
+k8s.node.name
+k8s.node.uid
 ```
 
 Log Attributes:
 ```
-http.response.status.code
-http.request.method
-http.request.method_original
-openshift.labels.*
-user.name
-user_agent.original
-url.domain
-url.full
-url.path
-url.query
+k8s.event.level
+k8s.event.stage
+k8s.event.user_agent
+k8s.event.request.uri
+k8s.event.response.code
+k8s.event.annotations.*
+k8s.user.username
+k8s.user.groups
 ```
 
 ### Cluster Node Journal Logs
 
 Resource Attributes:
 ```
+k8s.node.name
+k8s.node.uid
+
+process.executable.name
+process.executable.path
+process.command_line
+process.pid
+service.name
 ```
 
-Log Attributes:    #NEED TO REVIEW SYSTEM VALUES SINCE THEY DON'T LOOK TO BE FORWARDED. PROCESS SEEMS REASONABLE TO ASSOCIATE WITH A NODE
+Log Attributes:
 ```
-host.id
-openshift.labels.*
-process.command_line
-process.executable.path
-process.gid
-process.pid
-process.user.id
-service.name
-system.cgroup
-system.cmdline
-syslog.facility
-syslog.identifier
-system.invocation.id
-syslog.procid
-system.slice
-system.unit
 ```
 
 ### Cluster Node Auditd Logs
@@ -139,11 +143,11 @@ system.unit
 Resource Attributes:
 ```
 k8s.node.name
+k8s.node.uid
 ```
 
-Log Attributes:   #MAPPED THE PARSED MESSAGE STRING??
+Log Attributes:
 ```
-openshift.labels.*
 ```
 
 ## References
