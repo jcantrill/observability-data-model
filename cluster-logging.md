@@ -46,15 +46,8 @@ All log streams include the minimal set of the following [resource](https://gith
 openshift.cluster.uid
 openshift.log.source
 openshift.log.type
+openshift.labels.*
 ```
-
-All log streams include the following log attributes:
-
-```
-openshift.labels.*  # spec identifies these as resource attributes...
-```
-
-
 
 ### Kubernetes Container Logs
 
@@ -69,7 +62,7 @@ k8s.node.uid
 
 k8s.namespace.name
 k8s.container.name
-k8s.container.id
+k8s.pod.labels.*
 k8s.pod.name
 k8s.pod.uid
 
@@ -83,7 +76,6 @@ k8s.statefulset.name
 
 Log Attributes:
 ```
-k8s.pod.labels.*    # spec identifies these as resource attributes...
 log.iostream
 ```
 
@@ -104,8 +96,6 @@ and will be removed one release after **General Acceptance** of Red Hat OpenShif
 
 Resource Attributes:
 ```
-k8s.node.name
-k8s.node.uid
 ```
 
 Log Attributes:
@@ -116,6 +106,10 @@ k8s.event.user_agent
 k8s.event.request.uri
 k8s.event.response.code
 k8s.event.annotations.*
+k8s.event.object_ref.resource
+k8s.event.object_ref.name
+k8s.event.object_ref.api.group
+k8s.event.object_ref.api.version
 k8s.user.username
 k8s.user.groups
 ```
@@ -136,6 +130,8 @@ service.name
 
 Log Attributes:
 ```
+systemd.t.*
+systemd.u.*
 ```
 
 ### Cluster Node Auditd Logs
