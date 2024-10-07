@@ -68,12 +68,12 @@ The "Storage" column shows whether the attribute is stored into a LokiStack usin
 | `k8s.node.name` | resource | auditd, container, journal | stream label | |
 | `k8s.node.uid` | resource | auditd, container, journal | stream label | |
 | `k8s.namespace.name` | resource | container | stream label | |
-| `kubernetes.namespace_name` | resource | all | stream label | Compatibility attribute, contains same information as `k8s.namespace.name` |
+| `kubernetes.namespace_name` | resource | container | stream label | Compatibility attribute, contains same information as `k8s.namespace.name` |
 | `k8s.container.name` | resource | container | stream label | |
-| `kubernetes.container_name` | resource | all | stream label | Compatibility attribute, contains same information as `k8s.container.name` |
+| `kubernetes.container_name` | resource | container | stream label | Compatibility attribute, contains same information as `k8s.container.name` |
 | `k8s.pod.labels.*` | resource | container | structured metadata | |
 | `k8s.pod.name` | resource | container | stream label | |
-| `kubernetes.pod_name` | resource | all | stream label | Compatibility attribute, contains same information as `k8s.pod.name` |
+| `kubernetes.pod_name` | resource | container | stream label | Compatibility attribute, contains same information as `k8s.pod.name` |
 | `k8s.pod.uid` | resource | container | stream label | |
 | `k8s.cronjob.name` | resource | container | structured metadata | Conditionally forwarded based on creator of Pod |
 | `k8s.daemonset.name` | resource | container | structured metadata | Conditionally forwarded based on creator of Pod |
